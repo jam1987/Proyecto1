@@ -110,16 +110,16 @@ int main(int argc, char *argv[]) {
         perror("Error: No se pudo conectar con el servidor");
     }
     
-    char *infoLlegada;
-    infoLlegada = (char*)malloc(sizeof(char)*30);
-    if (read(socketfd,&infoLlegada, 30)<0) {
+    char *infoLlegada= (char*)malloc(sizeof(char)*33);
+
+    if (read(socketfd,infoLlegada, 33)<0) {
         perror("Error: No se pudo leer del socket");
         exit(-1);
     } else {
     
         printf("El servidor envio el siguiente mensaje:\n");
     }
-    //printf("%s\n",infoLlegada);
+    printf("%s\n",infoLlegada);
     sleep(48000);
     
     inventario = inventario - consumo;

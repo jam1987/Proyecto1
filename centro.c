@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
                 exit(-1);
             }
             char *mensaje ="el servidor va a tardar 5 minutos";
-            if (write(nuevosocketfd, &mensaje,33)<0) {
+            if (write(nuevosocketfd, mensaje,33)<0) {
                 perror("Error: No se pudo escribir en el socket");
                 exit(-1);
             } else {
