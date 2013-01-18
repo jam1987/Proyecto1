@@ -5,6 +5,7 @@
 #include<netinet/in.h>
 #include<strings.h>
 #include<unistd.h>
+#define PORT 538072
 
 int main(int argc, char *argv[]) {
     char *nombreBomba;
@@ -14,6 +15,7 @@ int main(int argc, char *argv[]) {
     char *nombreArchivo;
     int socketfd;
     struct sockaddr_in direccionServidor;
+    char *servidor = "127.0.0.1";
 
     if (argc!=11) {
         perror("Error: El numero de parametros no es valido");
@@ -95,8 +97,8 @@ int main(int argc, char *argv[]) {
     
     bzero(&direccionServidor, sizeof(direccionServidor));
     direccionServidor.sin_family = AF_INET;
-    direccionServidor.sin_addr.s_addr = inet_addr("127.0.0.1");
-    direccionServidor.sin_port = htons(538072);
+    direccionServidor.sin_addr.s_addr = inet_addr(servidor);
+    direccionServidor.sin_port = htons(PORT);
     socketfd = socket(AF_INET, SOCK_STREAM,0);
     if (socketfd<0) {
         perror("Error: No se pudo abrir el socket");
@@ -109,14 +111,15 @@ int main(int argc, char *argv[]) {
     }
     
     char *infoLlegada;
-    infoLlegada = (char*)malloc(sizeof(char)*2500);
-    if (read(socketfd,&infoLlegada, 30)!=1) {
+    infoLlegada = (char*)malloc(sizeof(char)*30);
+    if (read(socketfd,&infoLlegada, 30)<0) {
         perror("Error: No se pudo leer del socket");
         exit(-1);
-    }
+    } else {
     
-    printf("El servidor envio el siguiente mensaje:\n");
-    printf("%s\n",infoLlegada);
+        printf("El servidor envio el siguiente mensaje:\n");
+    }
+    //printf("%s\n",infoLlegada);
     sleep(48000);
     
     inventario = inventario - consumo;

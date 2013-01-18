@@ -4,6 +4,7 @@
 #include<sys/socket.h>
 #include<netinet/in.h>
 #include<strings.h>
+#define PORT 538072
 
 int main(int argc, char *argv[]) {
     char *nombreCentro;
@@ -101,17 +102,17 @@ int main(int argc, char *argv[]) {
             exit(-1);
         }
         
-        printf("%s %d", "SOCKET ID: \n"+socketfd);
+     
         bzero(&direccionServidor, sizeof(direccionServidor));
         direccionServidor.sin_family = AF_INET;
         direccionServidor.sin_addr.s_addr = htonl(INADDR_ANY);
-        direccionServidor.sin_port = htons(538072);
-        if (int bin=bind(socketfd, (struct sockaddr *) &direccionServidor, sizeof(direccionServidor))!=0) {
+        direccionServidor.sin_port = htons(PORT);
+        if (bind(socketfd, (struct sockaddr *) &direccionServidor, sizeof(direccionServidor))!=0) {
             perror("Error: No se pudo asociar al socket");
             exit(-1);
         }
         
-        printf("%s %d", "BIND ID: \n"+bin);
+       
         if (listen(socketfd,10)<0) {
             perror("Error: No se puede escuchar");
             exit(-1);
@@ -120,19 +121,23 @@ int main(int argc, char *argv[]) {
         while (1) {
             tamanoCliente = sizeof(direccionCliente);
             nuevosocketfd = accept(socketfd, (struct sockaddr *) &direccionCliente, &tamanoCliente);
-            printf("%s %d", "SOCKET ID: \n"+nuevosocketfd);
             if (nuevosocketfd<0) {
                 perror("Error: No se pudo aceptar la solicitud");
                 exit(-1);
             }
             char *mensaje ="el servidor va a tardar 5 minutos";
-            if (write(socketfd, &mensaje,33)!=1) {
+            if (write(nuevosocketfd, &mensaje,33)<0) {
                 perror("Error: No se pudo escribir en el socket");
                 exit(-1);
+            } else {
+                printf("Se envio un mensaje a la bomba");
             }
-            close(socketfd);
-            }
+            close(nuevosocketfd);
+        }
+        
     }
+        
+    
     
     
     
