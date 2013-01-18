@@ -1,5 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<netinet/in.h>
+#include<strings.h>
 
 int main(int argc, char *argv[]) {
     char *nombreCentro;
@@ -7,6 +11,10 @@ int main(int argc, char *argv[]) {
     int inventario;
     int tiempo;
     int suministro;
+    int socketfd;
+    int nuevosocketfd;
+    struct sockaddr_in direccionCliente, direccionServidor;
+    int tamanoCliente;
 
     if (argc!=11) {
         perror("Error: El numero de parametros no es valido");
@@ -86,6 +94,46 @@ int main(int argc, char *argv[]) {
             perror("Error: Falta el parametro -n o Parametro incorrecto");
             exit(-1);
         }
+        
+        socketfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (socketfd<0) {
+            perror("Error: No se pudo abrir el socket");
+            exit(-1);
+        }
+        
+        printf("%s %d", "SOCKET ID: \n"+socketfd);
+        bzero(&direccionServidor, sizeof(direccionServidor));
+        direccionServidor.sin_family = AF_INET;
+        direccionServidor.sin_addr.s_addr = htonl(INADDR_ANY);
+        direccionServidor.sin_port = htons(538072);
+        if (int bin=bind(socketfd, (struct sockaddr *) &direccionServidor, sizeof(direccionServidor))!=0) {
+            perror("Error: No se pudo asociar al socket");
+            exit(-1);
+        }
+        
+        printf("%s %d", "BIND ID: \n"+bin);
+        if (listen(socketfd,10)<0) {
+            perror("Error: No se puede escuchar");
+            exit(-1);
+        }
+        
+        while (1) {
+            tamanoCliente = sizeof(direccionCliente);
+            nuevosocketfd = accept(socketfd, (struct sockaddr *) &direccionCliente, &tamanoCliente);
+            printf("%s %d", "SOCKET ID: \n"+nuevosocketfd);
+            if (nuevosocketfd<0) {
+                perror("Error: No se pudo aceptar la solicitud");
+                exit(-1);
+            }
+            char *mensaje ="el servidor va a tardar 5 minutos";
+            if (write(socketfd, &mensaje,33)!=1) {
+                perror("Error: No se pudo escribir en el socket");
+                exit(-1);
+            }
+            close(socketfd);
+            }
     }
+    
+    
     
 }

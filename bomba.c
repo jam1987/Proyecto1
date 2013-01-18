@@ -1,5 +1,10 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<netinet/in.h>
+#include<strings.h>
+#include<unistd.h>
 
 int main(int argc, char *argv[]) {
     char *nombreBomba;
@@ -7,6 +12,8 @@ int main(int argc, char *argv[]) {
     int inventario;
     int consumo;
     char *nombreArchivo;
+    int socketfd;
+    struct sockaddr_in direccionServidor;
 
     if (argc!=11) {
         perror("Error: El numero de parametros no es valido");
@@ -84,5 +91,38 @@ int main(int argc, char *argv[]) {
             exit(-1);
         }
     }
+    
+    
+    bzero(&direccionServidor, sizeof(direccionServidor));
+    direccionServidor.sin_family = AF_INET;
+    direccionServidor.sin_addr.s_addr = inet_addr("127.0.0.1");
+    direccionServidor.sin_port = htons(538072);
+    socketfd = socket(AF_INET, SOCK_STREAM,0);
+    if (socketfd<0) {
+        perror("Error: No se pudo abrir el socket");
+        exit(-1);
+    }
+    
+    
+    if (connect(socketfd,(struct sockaddr *) &direccionServidor, sizeof(direccionServidor))<0) {
+        perror("Error: No se pudo conectar con el servidor");
+    }
+    
+    char *infoLlegada;
+    infoLlegada = (char*)malloc(sizeof(char)*2500);
+    if (read(socketfd,&infoLlegada, 30)!=1) {
+        perror("Error: No se pudo leer del socket");
+        exit(-1);
+    }
+    
+    printf("El servidor envio el siguiente mensaje:\n");
+    printf("%s\n",infoLlegada);
+    sleep(48000);
+    
+    inventario = inventario - consumo;
+    
+    
+    
+    printf("%d\n",inventario);
     
 }
